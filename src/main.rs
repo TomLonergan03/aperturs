@@ -1,4 +1,5 @@
 mod app;
+pub(crate) mod exif_data;
 pub(crate) mod image;
 pub(crate) mod state;
 use app::App;

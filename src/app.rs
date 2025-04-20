@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::{image::Image, state::AppState};
+use crate::{exif_data::ExifData, image::Image, state::AppState};
 use image::ImageReader;
 use ratatui::{
     buffer::Buffer,
@@ -142,9 +142,7 @@ impl StatefulWidget for &mut App {
                     .block(Block::new().borders(Borders::ALL).title("Images"))
                     .render(metadata_layout[0], buf);
 
-                Paragraph::new(Text::from("EXIF data here".bold()))
-                    .block(Block::new().borders(Borders::ALL).title("EXIF data"))
-                    .render(metadata_layout[1], buf);
+                ExifData::new(self.current_image.clone()).render(metadata_layout[1], buf);
 
                 Image::default().render(image_layout[0], buf, &mut self.image);
 
