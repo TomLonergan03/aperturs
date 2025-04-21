@@ -1,22 +1,23 @@
-use std::{path::PathBuf, vec};
-
-use little_exif::metadata::Metadata;
+use little_exif::metadata::Metadata as ExifMetadata;
 use ratatui::{
     layout::Rect,
     widgets::{Block, Paragraph, Widget},
 };
+use std::path::PathBuf;
 
-pub struct ExifData {
+use crate::exif_data::constant_metadata::ConstantMetadata;
+
+pub struct ConstantExifData {
     image_path: PathBuf,
 }
 
-impl ExifData {
+impl ConstantExifData {
     pub fn new(image_path: PathBuf) -> Self {
         Self { image_path }
     }
 }
 
-impl Widget for &ExifData {
+impl Widget for &ConstantExifData {
     fn render(self, area: ratatui::layout::Rect, buf: &mut ratatui::buffer::Buffer) {
         Block::default()
             .title("Exif Data")
@@ -30,12 +31,9 @@ impl Widget for &ExifData {
             area.height.saturating_sub(2),
         );
 
-        let metadata = Metadata::new_from_path(&self.image_path).expect("Failed to read EXIF data");
-        let mut exif_data = String::new();
-        for tag in &metadata {
-            exif_data.push_str(&(format!("{:?}", tag) + "\n"));
-        }
+        let exif = ExifMetadata::new_from_path(&self.image_path).expect("Failed to read EXIF data");
+        let metadata = ConstantMetadata::from_exif(&exif).unwrap();
 
-        Paragraph::new(exif_data).render(image_area, buf);
+        Paragraph::new(metadata.to_string()).render(image_area, buf);
     }
 }

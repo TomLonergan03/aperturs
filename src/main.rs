@@ -1,8 +1,7 @@
-mod app;
 pub(crate) mod exif_data;
-pub(crate) mod image;
-pub(crate) mod state;
-use app::App;
+mod state;
+mod widget;
+use widget::app::App;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = ratatui::init();
