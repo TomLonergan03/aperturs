@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crate::state::AppState;
 use image::ImageReader;
 use ratatui::{
@@ -13,8 +11,11 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 use ratatui_image::{picker::Picker, protocol::StatefulProtocol};
+use std::path::PathBuf;
 
-use super::{constant_exif_data::ConstantExifData, image::Image};
+use super::{
+    constant_exif_data::ConstantExifData, editable_exif_data::EditableExifData, image::Image,
+};
 
 pub struct App {
     exit: bool,
@@ -151,13 +152,7 @@ impl StatefulWidget for &mut App {
 
                 Image::default().render(image_layout[0], buf, &mut self.image);
 
-                Paragraph::new(Text::from("TODO editable metadata".bold()))
-                    .block(
-                        Block::new()
-                            .borders(Borders::ALL)
-                            .title("Editable metadata"),
-                    )
-                    .render(image_layout[1], buf);
+                EditableExifData::new(self.current_image.clone()).render(image_layout[1], buf);
             }
         };
     }

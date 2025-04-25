@@ -1,3 +1,4 @@
 pub mod app;
-pub mod constant_exif_data;
-pub mod image;
+pub(crate) mod constant_exif_data;
+pub(crate) mod editable_exif_data;
+pub(crate) mod image;
