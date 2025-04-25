@@ -1,9 +1,11 @@
 use crate::exif_data::error::MetadataError;
 use little_exif::{endian::Endian, exif_tag::ExifTag, metadata};
-use std::{fmt::Display, path::Path};
-use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile};
+use std::fmt::Display;
 
-use super::read_exif::get_string;
+use super::{
+    read_exif::get_string,
+    read_xmp::{Xmp, XmpProperties},
+};
 
 /// This parses metadata that will not be edited from the exif data of a photo.
 #[derive(Debug)]
@@ -13,41 +15,13 @@ pub struct EditableMetadata {
 }
 
 impl EditableMetadata {
-    pub fn from_exif(exif: &metadata::Metadata, path: &Path) -> Result<Self, MetadataError> {
+    pub fn from_exif(exif: &metadata::Metadata, xmp: &Xmp) -> Result<Self, MetadataError> {
         let endian = exif.get_endian();
         if endian != Endian::Little {
             return Err(MetadataError::UnsupportedBigEndian);
         }
 
-        let mut f = XmpFile::new().map_err(|_| {
-            MetadataError::XmpError(format!(
-                "Failed to create XmpFile for path: {}",
-                path.display()
-            ))
-        })?;
-        f.open_file(
-            path,
-            OpenFileOptions::default().only_xmp().use_smart_handler(),
-        )
-        .map_err(|_| {
-            MetadataError::XmpError(format!(
-                "Failed to open XmpFile for path: {}",
-                path.display()
-            ))
-        })?;
-
-        let xmp = f.xmp().ok_or(MetadataError::XmpError(format!(
-            "Failed to get XMP data for path: {}",
-            path.display()
-        )))?;
-
-        let rating = xmp
-            .property_i32(xmp_ns::XMP, "Rating")
-            .ok_or(MetadataError::XmpError(format!(
-                "Failed to get XMP rating for path: {}",
-                path.display()
-            )))?
-            .value as u16;
+        let rating = xmp.get_i32(XmpProperties::Rating)? as u16;
 
         let tags = get_string(exif, &ExifTag::UserComment(Vec::new()))?.replace("ASCII", "");
 

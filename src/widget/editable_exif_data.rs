@@ -1,4 +1,4 @@
-use crate::exif_data::editable_metadata::EditableMetadata;
+use crate::exif_data::{editable_metadata::EditableMetadata, read_xmp::Xmp};
 use little_exif::metadata::Metadata as ExifMetadata;
 use ratatui::{
     layout::Rect,
@@ -31,7 +31,8 @@ impl Widget for &EditableExifData {
         );
 
         let exif = ExifMetadata::new_from_path(&self.image_path).expect("Failed to read EXIF data");
-        let metadata = EditableMetadata::from_exif(&exif, &self.image_path).unwrap();
+        let xmp = Xmp::read_xmp(&self.image_path).expect("Failed to read XMP data");
+        let metadata = EditableMetadata::from_exif(&exif, &xmp).unwrap();
 
         Paragraph::new(metadata.to_string()).render(image_area, buf);
     }
