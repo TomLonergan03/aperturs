@@ -1,6 +1,4 @@
-use std::path::PathBuf;
-
-use crate::{image::Image, state::AppState};
+use crate::state::AppState;
 use image::ImageReader;
 use ratatui::{
     buffer::Buffer,
@@ -13,6 +11,11 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 use ratatui_image::{picker::Picker, protocol::StatefulProtocol};
+use std::path::PathBuf;
+
+use super::{
+    constant_exif_data::ConstantExifData, editable_exif_data::EditableExifData, image::Image,
+};
 
 pub struct App {
     exit: bool,
@@ -134,30 +137,23 @@ impl StatefulWidget for &mut App {
             .split(layout[1]);
 
         match self.state {
-            AppState::FolderSelection => render_folder_selection(area, buf),
-            AppState::Initialising => todo!(),
+            AppState::FolderSelection => {
+                Paragraph::new(Text::from("Select a folder".bold()))
+                    .block(Block::new().borders(Borders::ALL).title("Placeholder"))
+                    .render(area, buf);
+            }
             AppState::NoActiveImage => todo!(),
             AppState::ActiveImage => {
-                Paragraph::new(Text::from("Images go here".bold()))
+                Paragraph::new(Text::from("TODO thumbnails".bold()))
                     .block(Block::new().borders(Borders::ALL).title("Images"))
                     .render(metadata_layout[0], buf);
 
-                Paragraph::new(Text::from("EXIF data here".bold()))
-                    .block(Block::new().borders(Borders::ALL).title("EXIF data"))
-                    .render(metadata_layout[1], buf);
+                ConstantExifData::new(self.current_image.clone()).render(metadata_layout[1], buf);
 
                 Image::default().render(image_layout[0], buf, &mut self.image);
 
-                Paragraph::new(Text::from("Some dynamic stuff maybe".bold()))
-                    .block(Block::new().borders(Borders::ALL).title("Placeholder"))
-                    .render(image_layout[1], buf);
+                EditableExifData::new(self.current_image.clone()).render(image_layout[1], buf);
             }
         };
     }
-}
-
-fn render_folder_selection(area: Rect, buf: &mut Buffer) {
-    Paragraph::new(Text::from("Select a folder".bold()))
-        .block(Block::new().borders(Borders::ALL).title("Placeholder"))
-        .render(area, buf);
 }

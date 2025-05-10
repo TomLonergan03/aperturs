@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+byteorder = "1.5.0"
 color-eyre = "0.6.3"
 crossterm = "0.29.0"
 image = "0.25.6"
+little_exif = "0.6.3"
 ratatui = "0.29.0"
 ratatui-image = "5.0.0"
+xmp_toolkit = "1.9.2"
